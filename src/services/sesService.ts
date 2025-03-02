@@ -85,6 +85,10 @@ export const sendConfirmationEmail = async (
                       border-radius: 5px;
                       margin: 20px 0;
                     }
+                    .highlight {
+                      font-weight: bold;
+                      color: red;
+                    }
                   </style>
                 </head>
                 <body>
@@ -106,7 +110,7 @@ export const sendConfirmationEmail = async (
                       
                       <p>Please save this email for your records. We'll send you additional information and updates as the event approaches.</p>
                       
-                      <a href="https://cfiopenhouse.com" class="button">View Event Details</a>
+                      <a href="https://example.com/event-details" class="button">View Event Details</a>
                       
                       <p>If you have any questions or need assistance, please contact us at <a href="mailto:cfi@iitm.ac.in">cfi@iitm.ac.in</a>.</p>
                       
@@ -115,7 +119,7 @@ export const sendConfirmationEmail = async (
                       <p>Best regards,<br>CFI Open House Team<br>IIT Madras</p>
                     </div>
                     <div class="footer">
-                      <p>This is an automated message. Please do not reply to this email.</p>
+                      <p class="highlight">⚠️ This is an automated message. Please do not reply to this email.</p>
                       <p>&copy; ${new Date().getFullYear()} Centre for Innovation, IIT Madras. All rights reserved.</p>
                     </div>
                   </div>
@@ -146,7 +150,8 @@ export const sendConfirmationEmail = async (
               CFI Open House Team
               IIT Madras
               
-              This is an automated message. Please do not reply to this email.
+              ⚠️ **This is an automated message. Please do not reply to this email.**
+              
               © ${new Date().getFullYear()} Centre for Innovation, IIT Madras. All rights reserved.
             `,
           },
