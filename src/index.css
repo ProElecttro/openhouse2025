@@ -1,0 +1,108 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  @apply bg-black text-white;
+}
+
+/* Floating animation for letters */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* Particle animation */
+.particle {
+  position: absolute;
+  background: linear-gradient(to right, rgba(139, 92, 246, 0.5), rgba(59, 130, 246, 0.5));
+  border-radius: 50%;
+  pointer-events: none;
+  animation: floatParticle 15s linear infinite;
+}
+
+@keyframes floatParticle {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(100px);
+    opacity: 0;
+  }
+}
+
+/* Glow effect */
+.glow {
+  text-shadow: 0 0 10px rgba(139, 92, 246, 0.7),
+               0 0 20px rgba(139, 92, 246, 0.5),
+               0 0 30px rgba(139, 92, 246, 0.3);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gradient-to-b from-purple-600 to-blue-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gradient-to-b from-purple-500 to-blue-500;
+}
+
+/* Focus styles */
+*:focus-visible {
+  @apply outline-none ring-2 ring-purple-500 ring-opacity-50;
+}
+
+/* Selection styles */
+::selection {
+  @apply bg-purple-500 bg-opacity-30 text-white;
+}
+
+/* Animated background gradient */
+.animated-gradient {
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
