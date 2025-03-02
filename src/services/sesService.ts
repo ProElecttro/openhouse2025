@@ -106,7 +106,7 @@ export const sendConfirmationEmail = async (
                       
                       <p>Please save this email for your records. We'll send you additional information and updates as the event approaches.</p>
                       
-                      <a href="https://example.com/event-details" class="button">View Event Details</a>
+                      <a href="https://cfiopenhouse.com" class="button">View Event Details</a>
                       
                       <p>If you have any questions or need assistance, please contact us at <a href="mailto:cfi@iitm.ac.in">cfi@iitm.ac.in</a>.</p>
                       
