@@ -552,7 +552,7 @@ END:VCALENDAR`;
               </div>
               {submitError && (
                 <div className="bg-red-900/20 rounded-lg p-4 border border-red-500/20">
-                  <p className="text-red-300 text-sm">{submitError}</p>
+                  <p className="text-red-300 text-sm">Some Error Occured</p>
                 </div>
               )}
             </div>
