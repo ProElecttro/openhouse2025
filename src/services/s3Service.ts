@@ -4,12 +4,12 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 let s3Config = {
   region: import.meta.env.VITE_AWS_REGION || "ap-south-1",
   credentials: {
-    accessKeyId: import.meta.env.VITE_AWS_ACCESS_KEY_ID || "",
-    secretAccessKey: import.meta.env.VITE_AWS_SECRET_ACCESS_KEY || "",
+    accessKeyId: import.meta.env.VITE_AWS_ACCESS_KEY_ID,
+    secretAccessKey: import.meta.env.VITE_AWS_SECRET_ACCESS_KEY,
   },
 };
 
-let bucketName = import.meta.env.VITE_AWS_S3_BUCKET || "openhouse2025";
+let bucketName = import.meta.env.VITE_AWS_S3_BUCKET;
 let s3Client = new S3Client(s3Config);
 
 /**

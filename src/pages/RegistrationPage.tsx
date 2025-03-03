@@ -1,11 +1,20 @@
 import React, { useState } from 'react';
-import { CheckCircle, User, Mail, Phone, Building, Tag, Info, ArrowRight } from 'lucide-react';
-import { uploadToS3, updateS3Config } from '../services/s3Service';
-import { sendConfirmationEmail } from '../services/sesService';
-import { useEffect } from "react";
+import { CheckCircle, User, Mail, Phone, Building, Tag, Info, ArrowRight, Calendar } from 'lucide-react';
+import { uploadToS3 } from '../services/s3Service';
+
+interface RegistrationFormData {
+  name: string;
+  email: string;
+  phone: string;
+  organization: string;
+  role: string;
+  interests: string[];
+  hearAbout: string;
+  specialRequirements: string;
+}
 
 const RegistrationPage = () => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<RegistrationFormData>({
     name: '',
     email: '',
     phone: '',
@@ -16,12 +25,13 @@ const RegistrationPage = () => {
     specialRequirements: ''
   });
   
-  
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // New state variable for final submission confirmation
+  const [isFinalStepFlagged, setIsFinalStepFlagged] = useState(false);
   const totalSteps = 3;
 
   const interestOptions = [
@@ -42,10 +52,9 @@ const RegistrationPage = () => {
       [name]: value
     }));
     
-    // Clear error when field is edited
     if (errors[name]) {
       setErrors(prev => {
-        const newErrors = {...prev};
+        const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
       });
@@ -57,14 +66,13 @@ const RegistrationPage = () => {
     setFormData(prev => ({
       ...prev,
       interests: checked 
-        ? [...(prev.interests as string[]), value]
-        : (prev.interests as string[]).filter(interest => interest !== value)
+        ? [...prev.interests, value]
+        : prev.interests.filter(interest => interest !== value)
     }));
     
-    // Clear interest error if at least one is selected
     if (checked && errors.interests) {
       setErrors(prev => {
-        const newErrors = {...prev};
+        const newErrors = { ...prev };
         delete newErrors.interests;
         return newErrors;
       });
@@ -89,7 +97,7 @@ const RegistrationPage = () => {
     } else if (step === 2) {
       if (!formData.organization.trim()) newErrors.organization = 'Organization is required';
       if (!formData.role) newErrors.role = 'Role is required';
-      if ((formData.interests as string[]).length === 0) newErrors.interests = 'Please select at least one interest';
+      if (formData.interests.length === 0) newErrors.interests = 'Please select at least one interest';
     }
     
     setErrors(newErrors);
@@ -104,73 +112,141 @@ const RegistrationPage = () => {
   };
 
   const prevStep = () => {
-    setCurrentStep(prev => prev - 1);
+    setCurrentStep(prev => {
+      const newStep = prev - 1;
+      // Reset the final step flag if leaving step 3
+      if (newStep < totalSteps) {
+        setIsFinalStepFlagged(false);
+      }
+      return newStep;
+    });
     window.scrollTo(0, 0);
   };
 
   const validate = () => {
-    // Validate all steps before final submission
     const step1Valid = validateStep(1);
-    setCurrentStep(1);
-    if (!step1Valid) return false;
+    if (!step1Valid) {
+      setCurrentStep(1);
+      return false;
+    }
     
     const step2Valid = validateStep(2);
-    setCurrentStep(2);
-    if (!step2Valid) return false;
+    if (!step2Valid) {
+      setCurrentStep(2);
+      return false;
+    }
     
-    setCurrentStep(3);
     return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (validate()) {
-      setIsSubmitting(true);
-      setSubmitError(null);
+    if (currentStep !== totalSteps) return;
 
-      try {
-        // Add timestamp to the registration data
-        const registrationData = {
-          ...formData,
-          registrationDate: new Date().toISOString(),
-          registrationId: `REG-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-        };
+    // Validate entire form before proceeding
+    if (!validate()) {
+      return;
+    }
 
-        // Generate a unique key for S3 object
-        const key = `${registrationData.registrationId}.json`;
+    // If the final step hasn't been confirmed yet, mark it and return
+    if (!isFinalStepFlagged) {
+      setIsFinalStepFlagged(true);
+      return;
+    }
 
-        console.log("🚀 Uploading to S3:", key, registrationData);
+    // If flag is already set, proceed with submission
+    setIsSubmitting(true);
+    setSubmitError(null);
 
-        // Upload to S3
-        await uploadToS3(registrationData, key);
+    try {
+      const registrationData = {
+        ...formData,
+        registrationDate: new Date().toISOString(),
+        registrationId: `REG-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      };
 
-        // Send confirmation email
-        console.log("📧 Sending confirmation email to:", formData.email);
-        await sendConfirmationEmail(
-          formData.email,
-          formData.name,
-          registrationData.registrationId
-        );
+      const key = `${registrationData.registrationId}.json`;
 
-        console.log("✅ Registration submitted successfully:", registrationData);
-        setSubmitted(true);
-      } catch (error: any) {
-        console.error("❌ Error submitting registration:", error);
+      console.log("🚀 Uploading to S3:", key, registrationData);
+      await uploadToS3(registrationData, key);
 
-        // Log AWS SDK errors properly
-        if (error instanceof Error) {
-          setSubmitError(error.message);
-        } else {
-          setSubmitError("Unknown error occurred. Check console for details.");
-        }
-      } finally {
-        setIsSubmitting(false);
+      console.log("✅ Registration submitted successfully:", registrationData);
+      setSubmitted(true);
+    } catch (error: any) {
+      console.error("❌ Error submitting registration:", error);
+      if (error instanceof Error) {
+        setSubmitError(error.message);
+      } else {
+        setSubmitError("Unknown error occurred.");
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  
+  // Prevent accidental form submission via Enter key on non-final steps.
+  const handleFormKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
+    if (e.key === 'Enter' && currentStep !== totalSteps) {
+      e.preventDefault();
+    }
+  };
+
+  // Function to generate and download the ICS file
+  const handleDownloadICS = () => {
+    const icsContent = `BEGIN:VCALENDAR
+PRODID:-//Google Inc//Google Calendar 70.9054//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:REQUEST
+BEGIN:VTIMEZONE
+TZID:Asia/Kolkata
+X-LIC-LOCATION:Asia/Kolkata
+BEGIN:STANDARD
+TZOFFSETFROM:+0530
+TZOFFSETTO:+0530
+TZNAME:GMT+5:30
+DTSTART:19700101T000000
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Kolkata:20250315T090000
+DTEND;TZID=Asia/Kolkata:20250315T170000
+DTSTAMP:20250217T181836Z
+ORGANIZER;CN="Branding and Engagement Team, CFI IIT Madras":mailto:cfi.iitmadras@gmail.com
+UID:3qjr05nfqkdbram242amijrj9l@google.com
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=TRUE;CN="Branding and Engagement Team, CFI IIT Madras";X-NUM-GUESTS=0:mailto:cfi.iitmadras@gmail.com
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=TRUE;CN=cfi@smail.iitm.ac.in;X-NUM-GUESTS=0:mailto:cfi@smail.iitm.ac.in
+X-GOOGLE-CONFERENCE:https://meet.google.com/gqf-uzhx-rfk
+X-MICROSOFT-CDO-OWNERAPPTID:-846267892
+CREATED:20250217T181742Z
+DESCRIPTION:-::~:~::~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~::~:~::-
+Join with Google Meet: https://meet.google.com/gqf-uzhx-rfk
+
+Learn more about Meet at: https://support.google.com/a/users/answer/9282720
+
+Please do not edit this section.
+-::~:~::~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~::~:~::-
+LAST-MODIFIED:20250217T181835Z
+LOCATION:NAC 2 rooftop\\, X6RH+H5J\\, Indian Institute Of Technology\\, Chennai\\, Tamil Nadu 600036\\, India
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:CFI Open House 2025 || IIT Madras
+TRANSP:OPAQUE
+END:VEVENT
+END:VCALENDAR`;
+    
+    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'CFI_Open_House_2025.ics';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   if (submitted) {
     return (
       <div className="min-h-screen py-20 bg-gradient-to-b from-black via-purple-900/30 to-black">
@@ -183,20 +259,13 @@ const RegistrationPage = () => {
                   <CheckCircle className="w-12 h-12 text-white" />
                 </div>
               </div>
-              <h2 className="text-3xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">Registration Successful!</h2>
+              <h2 className="text-3xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">
+                Registration Successful!
+              </h2>
               <p className="text-lg text-gray-300 mb-8">
                 Thank you for registering for the CFI Open House 2025. We're excited to have you join us!
               </p>
-              <div className="bg-gray-800/50 rounded-xl p-6 mb-8 border border-green-500/20">
-                <p className="text-gray-400 mb-3">
-                  A confirmation email has been sent to:
-                </p>
-                <p className="text-blue-400 font-semibold mb-3">{formData.email}</p>
-                <p className="text-gray-400 text-sm">
-                  Please check your inbox for event details and your registration confirmation.
-                </p>
-              </div>
-              <div className="mt-8">
+              <div className="mt-8 flex flex-col items-center gap-4">
                 <a 
                   href="/" 
                   className="group relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-green-600 to-blue-600 text-white font-bold rounded-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-green-500/30 hover:scale-105"
@@ -206,6 +275,13 @@ const RegistrationPage = () => {
                     <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </a>
+                <button
+                  type="button"
+                  onClick={handleDownloadICS}
+                  className="px-8 py-3 bg-gradient-to-r from-blue-600 to-green-600 text-white font-bold rounded-full hover:shadow-lg transition-all duration-300"
+                >
+                  Add to Calendar
+                </button>
               </div>
             </div>
           </div>
@@ -253,10 +329,10 @@ const RegistrationPage = () => {
       case 1:
         return (
           <>
-            <h3 className="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">Personal Information</h3>
-            
+            <h3 className="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">
+              Personal Information
+            </h3>
             <div className="space-y-6">
-              {/* Name */}
               <div className="relative">
                 <label className="block text-gray-300 mb-2 font-medium">Full Name *</label>
                 <div className="relative">
@@ -274,8 +350,6 @@ const RegistrationPage = () => {
                 </div>
                 {errors.name && <p className="mt-1 text-red-500 text-sm">{errors.name}</p>}
               </div>
-              
-              {/* Email */}
               <div className="relative">
                 <label className="block text-gray-300 mb-2 font-medium">Email Address *</label>
                 <div className="relative">
@@ -293,8 +367,6 @@ const RegistrationPage = () => {
                 </div>
                 {errors.email && <p className="mt-1 text-red-500 text-sm">{errors.email}</p>}
               </div>
-              
-              {/* Phone */}
               <div className="relative">
                 <label className="block text-gray-300 mb-2 font-medium">Phone Number *</label>
                 <div className="relative">
@@ -318,12 +390,14 @@ const RegistrationPage = () => {
       case 2:
         return (
           <>
-            <h3 className="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">Professional Details</h3>
-            
+            <h3 className="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">
+              Professional Details
+            </h3>
             <div className="space-y-6">
-              {/* Organization */}
               <div className="relative">
-                <label className="block text-gray-300 mb-2 font-medium">Organization/Institution *</label>
+                <label className="block text-gray-300 mb-2 font-medium">
+                  Organization/Institution *
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
                     <Building className="w-5 h-5 text-purple-500" />
@@ -339,8 +413,6 @@ const RegistrationPage = () => {
                 </div>
                 {errors.organization && <p className="mt-1 text-red-500 text-sm">{errors.organization}</p>}
               </div>
-              
-              {/* Role */}
               <div className="relative">
                 <label className="block text-gray-300 mb-2 font-medium">Role/Designation *</label>
                 <div className="relative">
@@ -368,8 +440,6 @@ const RegistrationPage = () => {
                 </div>
                 {errors.role && <p className="mt-1 text-red-500 text-sm">{errors.role}</p>}
               </div>
-              
-              {/* Interests */}
               <div className="relative">
                 <label className="block text-gray-300 mb-2 font-medium">Areas of Interest *</label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 bg-gray-800/50 rounded-lg border border-purple-500/30">
@@ -380,7 +450,7 @@ const RegistrationPage = () => {
                         id={interest}
                         name="interests"
                         value={interest}
-                        checked={(formData.interests as string[]).includes(interest)}
+                        checked={formData.interests.includes(interest)}
                         onChange={handleInterestChange}
                         className="w-5 h-5 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500 focus:ring-2"
                       />
@@ -398,12 +468,14 @@ const RegistrationPage = () => {
       case 3:
         return (
           <>
-            <h3 className="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">Additional Information</h3>
-            
+            <h3 className="text-2xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">
+              Additional Information
+            </h3>
             <div className="space-y-6">
-              {/* How did you hear about us */}
               <div className="relative">
-                <label className="block text-gray-300 mb-2 font-medium">How did you hear about the Open House?</label>
+                <label className="block text-gray-300 mb-2 font-medium">
+                  How did you hear about the Open House?
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
                     <Info className="w-5 h-5 text-purple-500" />
@@ -429,10 +501,10 @@ const RegistrationPage = () => {
                   </div>
                 </div>
               </div>
-              
-              {/* Special Requirements */}
               <div className="relative">
-                <label className="block text-gray-300 mb-2 font-medium">Special Requirements or Questions</label>
+                <label className="block text-gray-300 mb-2 font-medium">
+                  Special Requirements or Questions
+                </label>
                 <textarea
                   name="specialRequirements"
                   value={formData.specialRequirements}
@@ -442,20 +514,28 @@ const RegistrationPage = () => {
                   placeholder="Let us know if you have any special requirements or questions"
                 ></textarea>
               </div>
-              
-              {/* Summary */}
               <div className="bg-gray-800/50 rounded-lg p-6 border border-purple-500/20">
                 <h4 className="text-lg font-semibold mb-4 text-purple-300">Registration Summary</h4>
                 <div className="space-y-2">
-                  <p className="text-gray-300"><span className="text-gray-400">Name:</span> {formData.name}</p>
-                  <p className="text-gray-300"><span className="text-gray-400">Email:</span> {formData.email}</p>
-                  <p className="text-gray-300"><span className="text-gray-400">Phone:</span> {formData.phone}</p>
-                  <p className="text-gray-300"><span className="text-gray-400">Organization:</span> {formData.organization}</p>
-                  <p className="text-gray-300"><span className="text-gray-400">Role:</span> {formData.role}</p>
+                  <p className="text-gray-300">
+                    <span className="text-gray-400">Name:</span> {formData.name}
+                  </p>
+                  <p className="text-gray-300">
+                    <span className="text-gray-400">Email:</span> {formData.email}
+                  </p>
+                  <p className="text-gray-300">
+                    <span className="text-gray-400">Phone:</span> {formData.phone}
+                  </p>
+                  <p className="text-gray-300">
+                    <span className="text-gray-400">Organization:</span> {formData.organization}
+                  </p>
+                  <p className="text-gray-300">
+                    <span className="text-gray-400">Role:</span> {formData.role}
+                  </p>
                   <div>
                     <p className="text-gray-400">Interests:</p>
                     <div className="flex flex-wrap gap-2 mt-1">
-                      {(formData.interests as string[]).map((interest, index) => (
+                      {formData.interests.map((interest, index) => (
                         <span key={index} className="px-2 py-1 bg-purple-900/30 rounded-full text-purple-300 text-xs">
                           {interest}
                         </span>
@@ -464,16 +544,12 @@ const RegistrationPage = () => {
                   </div>
                 </div>
               </div>
-              
-              {/* AWS Configuration Notice */}
               <div className="bg-blue-900/20 rounded-lg p-4 border border-blue-500/20">
                 <p className="text-blue-300 text-sm">
-                  <strong>Note:</strong> Your registration data will be securely stored in our database. 
-                  You'll receive a confirmation email once your registration is processed.
+                  <strong>Note:</strong> Your registration data will be securely stored in our database.
+                  You'll receive a confirmation email with calendar details once your registration is processed.
                 </p>
               </div>
-              
-              {/* Error message */}
               {submitError && (
                 <div className="bg-red-900/20 rounded-lg p-4 border border-red-500/20">
                   <p className="text-red-300 text-sm">{submitError}</p>
@@ -489,27 +565,24 @@ const RegistrationPage = () => {
 
   return (
     <div className="min-h-screen py-20 bg-gradient-to-b from-black via-purple-900/30 to-black">
-      {/* Animated background elements */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-600/10 rounded-full filter blur-3xl animate-pulse"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
       </div>
-      
       <div className="container mx-auto px-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">Register for Open House 2025</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+              Register for Open House 2025
+            </h1>
             <p className="text-xl text-gray-300">
               Join us at IIT Madras for an extraordinary showcase of innovation
             </p>
           </div>
-          
           {renderStepIndicator()}
-          
           <div className="bg-gradient-to-br from-gray-900/80 to-black/90 p-8 md:p-10 rounded-2xl shadow-2xl border border-purple-500/30 backdrop-blur-sm">
-            <form onSubmit={handleSubmit}>
+            <form onKeyDown={handleFormKeyDown} onSubmit={handleSubmit}>
               {renderFormStep()}
-              
               <div className="mt-10 flex justify-between">
                 {currentStep > 1 && (
                   <button
@@ -521,7 +594,6 @@ const RegistrationPage = () => {
                     Back
                   </button>
                 )}
-                
                 {currentStep < totalSteps ? (
                   <button
                     type="button"
@@ -546,7 +618,7 @@ const RegistrationPage = () => {
                       </>
                     ) : (
                       <>
-                        <span>Complete Registration</span>
+                        <span>{isFinalStepFlagged ? "Confirm Registration" : "Complete Registration"}</span>
                         <ArrowRight className="ml-2" />
                       </>
                     )}
@@ -555,8 +627,6 @@ const RegistrationPage = () => {
               </div>
             </form>
           </div>
-          
-          {/* Form features highlight */}
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
@@ -570,9 +640,9 @@ const RegistrationPage = () => {
                 description: "Customize your Open House experience based on your interests"
               },
               {
-                icon: <Mail className="w-6 h-6 text-purple-400" />,
-                title: "Instant Confirmation",
-                description: "Receive immediate email confirmation of your registration"
+                icon: <Calendar className="w-6 h-6 text-purple-400" />,
+                title: "Calendar Integration",
+                description: "Receive event details with calendar invitation for easy scheduling"
               }
             ].map((feature, index) => (
               <div key={index} className="bg-gray-900/50 backdrop-blur-sm p-6 rounded-xl border border-purple-500/20">
