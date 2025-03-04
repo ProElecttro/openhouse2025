@@ -1,6 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CheckCircle, User, Mail, Phone, Building, Tag, Info, ArrowRight, Calendar } from 'lucide-react';
 import { uploadToS3 } from '../services/s3Service';
+import { jwtDecode } from "jwt-decode";
+
+const CLIENT_ID = "793546815543-s23djv3pm02c9pv1ku1kuap2luks1jrh.apps.googleusercontent.com";
+
+interface GoogleUser {
+  name: string;
+  email: string;
+  picture: string;
+}
 
 interface RegistrationFormData {
   name: string;
@@ -13,7 +22,38 @@ interface RegistrationFormData {
   specialRequirements: string;
 }
 
+
+
 const RegistrationPage = () => {
+  // Add this new state variable at the top of your component
+  const [googleUser, setGoogleUser] = useState<GoogleUser | null>(null);
+
+  useEffect(() => {
+    if (!window.google) {
+      return
+    };
+
+    window.google.accounts.id.initialize({
+      client_id: CLIENT_ID,
+      callback: handleCredentialResponse,
+    });
+
+    window.google.accounts.id.renderButton(
+      document.getElementById("google-login-button") as HTMLElement,
+      { theme: "outline", size: "large" }
+    );
+  }, []);
+
+  const handleCredentialResponse = (response: google.accounts.id.CredentialResponse) => {
+    const decoded: GoogleUser = jwtDecode(response.credential);
+    console.log("User Info:", decoded);
+    setGoogleUser(decoded);
+    // Auto-fill email in the registration form
+    setFormData(prev => ({ ...prev, email: decoded.email }));
+  };
+
+
+
   const [formData, setFormData] = useState<RegistrationFormData>({
     name: '',
     email: '',
@@ -24,7 +64,7 @@ const RegistrationPage = () => {
     hearAbout: '',
     specialRequirements: ''
   });
-  
+
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [currentStep, setCurrentStep] = useState(1);
@@ -51,7 +91,7 @@ const RegistrationPage = () => {
       ...prev,
       [name]: value
     }));
-    
+
     if (errors[name]) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -65,11 +105,11 @@ const RegistrationPage = () => {
     const { value, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      interests: checked 
+      interests: checked
         ? [...prev.interests, value]
         : prev.interests.filter(interest => interest !== value)
     }));
-    
+
     if (checked && errors.interests) {
       setErrors(prev => {
         const newErrors = { ...prev };
@@ -81,7 +121,7 @@ const RegistrationPage = () => {
 
   const validateStep = (step: number) => {
     const newErrors: Record<string, string> = {};
-    
+
     if (step === 1) {
       if (!formData.name.trim()) newErrors.name = 'Name is required';
       if (!formData.email.trim()) {
@@ -99,7 +139,7 @@ const RegistrationPage = () => {
       if (!formData.role) newErrors.role = 'Role is required';
       if (formData.interests.length === 0) newErrors.interests = 'Please select at least one interest';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -129,13 +169,13 @@ const RegistrationPage = () => {
       setCurrentStep(1);
       return false;
     }
-    
+
     const step2Valid = validateStep(2);
     if (!step2Valid) {
       setCurrentStep(2);
       return false;
     }
-    
+
     return true;
   };
 
@@ -143,6 +183,15 @@ const RegistrationPage = () => {
     e.preventDefault();
 
     if (currentStep !== totalSteps) return;
+
+    if (!googleUser) {
+      alert("Please sign in with Google to verify your email before submitting the form.");
+      return;
+    }
+    if (googleUser.email !== formData.email) {
+      alert("The email provided does not match your Google account email. Please verify your email.");
+      return;
+    }
 
     // Validate entire form before proceeding
     if (!validate()) {
@@ -235,7 +284,7 @@ SUMMARY:CFI Open House 2025 || IIT Madras
 TRANSP:OPAQUE
 END:VEVENT
 END:VCALENDAR`;
-    
+
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -266,8 +315,8 @@ END:VCALENDAR`;
                 Thank you for registering for the CFI Open House 2025. We're excited to have you join us!
               </p>
               <div className="mt-8 flex flex-col items-center gap-4">
-                <a 
-                  href="/" 
+                <a
+                  href="/"
                   className="group relative inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-green-600 to-blue-600 text-white font-bold rounded-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-green-500/30 hover:scale-105"
                 >
                   <span className="relative z-10 flex items-center">
@@ -295,14 +344,13 @@ END:VCALENDAR`;
       <div className="flex items-center justify-center mb-10">
         {Array.from({ length: totalSteps }).map((_, index) => (
           <React.Fragment key={index}>
-            <div 
-              className={`relative flex items-center justify-center w-10 h-10 rounded-full border-2 ${
-                currentStep > index + 1 
-                  ? 'border-purple-500 bg-purple-500 text-white' 
-                  : currentStep === index + 1 
-                    ? 'border-purple-500 bg-transparent text-purple-500' 
+            <div
+              className={`relative flex items-center justify-center w-10 h-10 rounded-full border-2 ${currentStep > index + 1
+                  ? 'border-purple-500 bg-purple-500 text-white'
+                  : currentStep === index + 1
+                    ? 'border-purple-500 bg-transparent text-purple-500'
                     : 'border-gray-600 bg-transparent text-gray-600'
-              } transition-all duration-300`}
+                } transition-all duration-300`}
             >
               {currentStep > index + 1 ? (
                 <CheckCircle className="w-5 h-5" />
@@ -310,10 +358,9 @@ END:VCALENDAR`;
                 <span className="text-sm font-bold">{index + 1}</span>
               )}
               {index + 1 !== totalSteps && (
-                <div 
-                  className={`absolute top-1/2 left-full w-12 h-0.5 -translate-y-1/2 ${
-                    currentStep > index + 1 ? 'bg-purple-500' : 'bg-gray-600'
-                  }`}
+                <div
+                  className={`absolute top-1/2 left-full w-12 h-0.5 -translate-y-1/2 ${currentStep > index + 1 ? 'bg-purple-500' : 'bg-gray-600'
+                    }`}
                 ></div>
               )}
             </div>
@@ -361,9 +408,11 @@ END:VCALENDAR`;
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
+                    disabled={true}  // Disable if a googleUser exists
                     className={`w-full pl-12 pr-4 py-3 bg-gray-800/70 border ${errors.email ? 'border-red-500' : 'border-purple-500/30'} rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white transition-all duration-300`}
-                    placeholder="Enter your email"
+                    placeholder="Sign In with Google to enter email address"
                   />
+
                 </div>
                 {errors.email && <p className="mt-1 text-red-500 text-sm">{errors.email}</p>}
               </div>
@@ -579,6 +628,11 @@ END:VCALENDAR`;
               Join us at IIT Madras for an extraordinary showcase of innovation
             </p>
           </div>
+
+          <div className="flex justify-center mb-6">
+            <div id="google-login-button"></div>
+          </div>
+
           {renderStepIndicator()}
           <div className="bg-gradient-to-br from-gray-900/80 to-black/90 p-8 md:p-10 rounded-2xl shadow-2xl border border-purple-500/30 backdrop-blur-sm">
             <form onKeyDown={handleFormKeyDown} onSubmit={handleSubmit}>
