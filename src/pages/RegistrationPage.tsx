@@ -48,9 +48,15 @@ const RegistrationPage = () => {
     const decoded: GoogleUser = jwtDecode(response.credential);
     console.log("User Info:", decoded);
     setGoogleUser(decoded);
-    // Auto-fill email in the registration form
     setFormData(prev => ({ ...prev, email: decoded.email }));
   };
+
+  // const handleCredentialResponse = (response: google.accounts.id.CredentialResponse) => {
+  //   const decoded: GoogleUser = jwtDecode(response.credential);
+  //   console.log("User Info:", decoded);
+  //   setGoogleUser(decoded); // Store user data to track authentication
+  // };
+  
 
 
 
@@ -630,7 +636,7 @@ END:VCALENDAR`;
           </div>
 
           <div className="flex justify-center mb-6">
-            <div id="google-login-button"></div>
+          {!googleUser && <div id="google-login-button"></div>}
           </div>
 
           {renderStepIndicator()}
