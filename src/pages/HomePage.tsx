@@ -226,7 +226,7 @@ const HomePage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
               <p className="text-lg text-gray-300 mb-6">
-                The Centre for Innovation (CFI) at the Indian Institute of Technology Madras (IIT Madras) is a student-driven hub established in 2008 to foster creativity and technological innovation among students.
+                Centre for Innovation (CFI) at the Indian Institute of Technology Madras (IIT Madras) is a student-driven hub established in 2008 to foster creativity and technological innovation among students.
               </p>
               <p className="text-lg text-gray-300 mb-6">
                 Each year, CFI organizes its flagship event, the Open House, where students showcase their innovative projects to the public, industry professionals, and academia.
