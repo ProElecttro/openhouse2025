@@ -169,7 +169,7 @@ const HomePage = () => {
         <div className="absolute top-32 right-8 md:right-16 bg-gradient-to-r from-purple-600/80 to-blue-600/80 backdrop-blur-md px-4 py-3 rounded-lg shadow-lg transform rotate-3 z-20">
           <div className="flex items-center gap-2">
             <Calendar className="w-5 h-5 text-purple-200" />
-            <span className="text-white font-medium">March 16, 2025</span>
+            <span className="text-white font-medium">March 15, 2025</span>
           </div>
         </div>
       </section>
@@ -187,12 +187,12 @@ const HomePage = () => {
               },
               { 
                 icon: <Award className="w-8 h-8 text-blue-400" />, 
-                number: "100+", 
+                number: "60+", 
                 text: "Innovative Projects" 
               },
               { 
                 icon: <Cpu className="w-8 h-8 text-indigo-400" />, 
-                number: "13", 
+                number: "14", 
                 text: "Innovation Clubs" 
               }
             ].map((stat, index) => (
