@@ -75,14 +75,12 @@ const RegistrationPage = () => {
   const totalSteps = 3;
 
   const interestOptions = [
-    'Robotics',
-    'Autonomous Vehicles',
-    'Rocketry',
-    'AI & Machine Learning',
-    'Electronics',
-    'Mechanical Engineering',
-    'Biomedical Engineering',
-    'Sustainable Technologies'
+    'Computing & AI',
+    'Automtion & Robotics',
+    'Energy & Sustainability',
+    'Aerospace & Space Tech',
+    'Advanced Manufacturing & Materials',
+    'Nanotechnology'
   ];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
