@@ -277,7 +277,7 @@ const HomePage = () => {
               },
               { 
                 icon: <Cpu className="w-12 h-12 text-blue-500" />, 
-                title: "13 Innovation Clubs", 
+                title: "14 Innovation Clubs", 
                 description: "Discover projects from robotics, electronics, programming, and various engineering domains." 
               },
               { 
