@@ -1,6 +1,5 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Mail, Phone, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+import { MapPin, Mail, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -15,16 +14,16 @@ const Footer = () => {
               Showcasing student innovation and technological breakthroughs at IIT Madras.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">
+              <a href="https://www.facebook.com/cfi.iitm" className="text-gray-400 hover:text-purple-500 transition-colors">
                 <Facebook size={20} />
               </a>
-              <a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">
+              <a href="https://x.com/CFI_IITM/" className="text-gray-400 hover:text-purple-500 transition-colors">
                 <Twitter size={20} />
               </a>
-              <a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">
+              <a href="https://www.instagram.com/cfi_iitm_/?hl=en" className="text-gray-400 hover:text-purple-500 transition-colors">
                 <Instagram size={20} />
               </a>
-              <a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">
+              <a href="https://www.linkedin.com/company/centre-for-innovation-cfi/posts/?feedView=all" className="text-gray-400 hover:text-purple-500 transition-colors">
                 <Linkedin size={20} />
               </a>
             </div>
