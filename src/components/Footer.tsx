@@ -1,6 +1,5 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Mail, Phone, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+import { MapPin, Mail, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -90,7 +89,7 @@ const Footer = () => {
               &copy; {new Date().getFullYear()} Centre for Innovation, IIT Madras. All rights reserved.
             </p>
             <div className="flex items-center space-x-2">
-              <span className="text-gray-500">Developed by</span>
+              <span className="text-gray-500">Developed by Webops and Blockchain Club</span>
               <a href="https://webops.cfi.iitm.ac.in" target="_blank" rel="noopener noreferrer">
                 <img 
                   src="https://cfi.iitm.ac.in/assets/WebopsandBlockchainLogo-207245f0.png" 
