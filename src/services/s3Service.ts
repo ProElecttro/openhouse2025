@@ -1,11 +1,12 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
-// S3 configuration (No access keys needed, IAM role will handle it)
+// S3 Client using default credentials (IAM role in EC2)
 let s3Client = new S3Client({
-  region: import.meta.env.VITE_AWS_REGION, // Ensure this is set in your environment
+  region: 'ap-south-1'
 });
 
-let bucketName = import.meta.env.VITE_AWS_S3_BUCKET;
+let bucketName = 'cfiopenhouse2025';
+
 
 /**
  * Updates the S3 configuration with new values (Optional)

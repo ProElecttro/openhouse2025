@@ -224,8 +224,10 @@ const RegistrationPage = () => {
       console.error("❌ Error submitting registration:", error);
       if (error instanceof Error) {
         setSubmitError(error.message);
+        console.log(submitError)
       } else {
         setSubmitError("Unknown error occurred.");
+        console.log(submitError)
       }
     } finally {
       setIsSubmitting(false);
