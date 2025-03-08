@@ -679,7 +679,7 @@ END:VCALENDAR`;
               </div>
             </form>
           </div>
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               {
                 icon: <CheckCircle className="w-6 h-6 text-purple-400" />,
@@ -705,7 +705,7 @@ END:VCALENDAR`;
                 <p className="text-gray-400">{feature.description}</p>
               </div>
             ))}
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
