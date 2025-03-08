@@ -331,7 +331,7 @@ const HomePage = () => {
             </p>
             <Link 
               to="/register" 
-              className="group relative inline-flex items-center justify-center px-10 py-5 font-bold text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-full overflow-hidden transition-all duration-300 ease-out hover:scale-105 hover:shadow-lg hover:shadow-purple-500/30 text-lg"
+              className="group relative inline-flex items-center justify-center px-4 py-4 font-bold text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-full overflow-hidden transition-all duration-300 ease-out hover:scale-105 hover:shadow-lg hover:shadow-purple-500/30 text-lg"
             >
               <span className="relative z-10 flex items-center">
                 Register for Open House 2025
