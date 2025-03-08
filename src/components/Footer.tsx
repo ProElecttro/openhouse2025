@@ -80,6 +80,9 @@ const Footer = () => {
           <p className="text-gray-500">
             &copy; {new Date().getFullYear()} Centre for Innovation, IIT Madras. All rights reserved.
           </p>
+          <p className="text-gray-500">
+            Developed by Students of WebOps & Blockchain Club, CFI.
+          </p>
         </div>
       </div>
     </footer>
