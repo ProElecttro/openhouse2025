@@ -33,10 +33,24 @@ const Navbar = () => {
           : 'bg-transparent py-5'
       }`}
     >
-      <div className="container mx-auto px-6">
+      <div className="container mx-auto px-2">
         <div className="flex justify-between items-center">
-          <Link to="/" className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">
-            CFI Open House
+          <Link to="/" className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
+              {/* <img 
+                src="https://cfi.iitm.ac.in/assets/IITMadrasLogo-23dbf76e.png" 
+                alt="IIT Madras Logo" 
+                className="h-12 w-auto"
+              /> */}
+              <img 
+                src="https://cfi.iitm.ac.in/assets/CFI%20Logo%20-%20White-6966b7c8.png" 
+                alt="CFI Logo" 
+                className="h-12 w-auto"
+              />
+            </div>
+            <span className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">
+              Open House
+            </span>
           </Link>
           
           {/* Desktop Menu */}

@@ -1,5 +1,6 @@
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Mail, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+import { MapPin, Mail, Phone, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -7,23 +8,34 @@ const Footer = () => {
       <div className="container mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-1">
-            <Link to="/" className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500 mb-4 inline-block">
-              CFI Open House
+            <Link to="/" className="flex items-center space-x-3 mb-4">
+              <div className="flex items-center space-x-3">
+                <img 
+                  src="https://cfi.iitm.ac.in/assets/CFI%20Logo%20-%20White-6966b7c8.png" 
+                  alt="CFI Logo" 
+                  className="h-12 w-auto"
+                />
+                <img 
+                  src="https://cfi.iitm.ac.in/assets/IITMadrasLogo-23dbf76e.png" 
+                  alt="IIT Madras Logo" 
+                  className="h-12 w-auto"
+                />
+              </div>
             </Link>
             <p className="text-gray-400 mb-6">
               Showcasing student innovation and technological breakthroughs at IIT Madras.
             </p>
             <div className="flex space-x-4">
-              <a href="https://www.facebook.com/cfi.iitm" className="text-gray-400 hover:text-purple-500 transition-colors">
+              <a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">
                 <Facebook size={20} />
               </a>
-              <a href="https://x.com/CFI_IITM/" className="text-gray-400 hover:text-purple-500 transition-colors">
+              <a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">
                 <Twitter size={20} />
               </a>
-              <a href="https://www.instagram.com/cfi_iitm_/?hl=en" className="text-gray-400 hover:text-purple-500 transition-colors">
+              <a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">
                 <Instagram size={20} />
               </a>
-              <a href="https://www.linkedin.com/company/centre-for-innovation-cfi/posts/?feedView=all" className="text-gray-400 hover:text-purple-500 transition-colors">
+              <a href="#" className="text-gray-400 hover:text-purple-500 transition-colors">
                 <Linkedin size={20} />
               </a>
             </div>
@@ -50,10 +62,6 @@ const Footer = () => {
                 <Mail size={18} className="text-purple-500 mr-2 flex-shrink-0" />
                 <a href="mailto:cfi@iitm.ac.in" className="text-gray-400 hover:text-purple-400 transition-colors">cfi@iitm.ac.in</a>
               </li>
-              {/* <li className="flex items-center">
-                <Phone size={18} className="text-purple-500 mr-2 flex-shrink-0" />
-                <a href="tel:+919876543210" className="text-gray-400 hover:text-purple-400 transition-colors">+91 98765 43210</a>
-              </li> */}
             </ul>
           </div>
           
@@ -76,13 +84,22 @@ const Footer = () => {
           </div>
         </div>
         
-        <div className="border-t border-gray-800 mt-12 pt-8 text-center">
-          <p className="text-gray-500">
-            &copy; {new Date().getFullYear()} Centre for Innovation, IIT Madras. All rights reserved.
-          </p>
-          <p className="text-gray-500">
-            Developed by Students of WebOps & Blockchain Club, CFI.
-          </p>
+        <div className="border-t border-gray-800 mt-12 pt-8">
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <p className="text-gray-500 mb-4 md:mb-0">
+              &copy; {new Date().getFullYear()} Centre for Innovation, IIT Madras. All rights reserved.
+            </p>
+            <div className="flex items-center space-x-2">
+              <span className="text-gray-500">Developed by</span>
+              <a href="https://webops.cfi.iitm.ac.in" target="_blank" rel="noopener noreferrer">
+                <img 
+                  src="https://cfi.iitm.ac.in/assets/WebopsandBlockchainLogo-207245f0.png" 
+                  alt="Webops and Blockchain Club Logo" 
+                  className="h-8 w-auto"
+                />
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
