@@ -99,8 +99,8 @@ const Footer = () => {
                   alt="Webops and Blockchain Club Logo"
                   className="h-8 w-auto"
                 />
-              </a>
               <span className="text-gray-500">Developed by Webops & Blockchain Club</span>
+</a>
             </div>
           </div>
         </div>
