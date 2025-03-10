@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, User, Mail, Phone, Building, Tag, Info, ArrowRight, Calendar } from 'lucide-react';
+import { CheckCircle, User, Mail, Phone, Building, Tag, Info, ArrowRight } from 'lucide-react';
 import { uploadToS3 } from '../services/s3Service';
 import { jwtDecode } from "jwt-decode";
 
