@@ -73,6 +73,8 @@ const RegistrationPage = () => {
   const totalSteps = 3;
 
   const interestOptions = [
+    'Blockchain',
+    'Web & App Development',
     'Computing & AI',
     'Automtion & Robotics',
     'Energy & Sustainability',

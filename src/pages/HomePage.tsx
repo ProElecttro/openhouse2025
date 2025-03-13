@@ -236,8 +236,8 @@ const HomePage = () => {
               </p>
               
               <div className="mt-8 flex flex-wrap gap-4">
-                {['Innovation', 'Technology', 'Robotics', 'AI', 'Engineering'].map((tag, index) => (
-                  <span key={index} className="px-4 py-2 bg-purple-900/30 rounded-full text-purple-300 text-sm">
+                {['Innovation', 'Technology', 'science', 'engineering', 'blockchain', 'math', 'AI', 'webdevelopment', 'cybersecurity', 'biotechnology', 'astronomy', 'spacetech', 'rocketry', 'racecar', 'productdesign', '3dprinting'].map((tag, index) => (
+                  <span key={index} className="px-2 py-1 bg-purple-900/30 rounded-full text-purple-300 text-sm">
                     #{tag}
                   </span>
                 ))}
