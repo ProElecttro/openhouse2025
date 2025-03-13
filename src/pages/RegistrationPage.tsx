@@ -46,9 +46,7 @@ const RegistrationPage = () => {
 
   const handleCredentialResponse = (response: google.accounts.id.CredentialResponse) => {
     const decoded: GoogleUser = jwtDecode(response.credential);
-    console.log("User Info:", decoded);
     setGoogleUser(decoded);
-    // Auto-fill email in the registration form
     setFormData(prev => ({ ...prev, email: decoded.email }));
   };
 
@@ -215,19 +213,18 @@ const RegistrationPage = () => {
 
       const key = `${registrationData.registrationId}.json`;
 
-      console.log("🚀 Uploading to S3:", key, registrationData);
       await uploadToS3(registrationData, key);
 
-      console.log("✅ Registration submitted successfully:", registrationData);
       setSubmitted(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error: any) {
       console.error("❌ Error submitting registration:", error);
       if (error instanceof Error) {
         setSubmitError(error.message);
-        console.log(submitError)
+        console.error(submitError)
       } else {
         setSubmitError("Unknown error occurred.");
-        console.log(submitError)
+        console.error(submitError)
       }
     } finally {
       setIsSubmitting(false);
@@ -346,10 +343,10 @@ END:VCALENDAR`;
           <React.Fragment key={index}>
             <div
               className={`relative flex items-center justify-center w-10 h-10 rounded-full border-2 ${currentStep > index + 1
-                  ? 'border-purple-500 bg-purple-500 text-white'
-                  : currentStep === index + 1
-                    ? 'border-purple-500 bg-transparent text-purple-500'
-                    : 'border-gray-600 bg-transparent text-gray-600'
+                ? 'border-purple-500 bg-purple-500 text-white'
+                : currentStep === index + 1
+                  ? 'border-purple-500 bg-transparent text-purple-500'
+                  : 'border-gray-600 bg-transparent text-gray-600'
                 } transition-all duration-300`}
             >
               {currentStep > index + 1 ? (
@@ -403,16 +400,25 @@ END:VCALENDAR`;
                   <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
                     <Mail className="w-5 h-5 text-purple-500" />
                   </div>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    disabled={true}  // Disable if a googleUser exists
-                    className={`w-full pl-12 pr-4 py-3 bg-gray-800/70 border ${errors.email ? 'border-red-500' : 'border-purple-500/30'} rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white transition-all duration-300`}
-                    placeholder="Sign In with Google to enter email address"
-                  />
-
+                  <div
+                    onClick={() => {
+                      if(formData.email == ""){
+                        alert('Please Sign In with Google to enter your email address!');
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }
+                    }}
+                    className="relative"
+                  >
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      disabled={true}
+                      className="pointer-events-none w-full pl-12 pr-4 py-3 bg-gray-800/70 border border-purple-500/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-white transition-all duration-300"
+                      placeholder="Sign In with Google to enter email address"
+                    />
+                  </div>
                 </div>
                 {errors.email && <p className="mt-1 text-red-500 text-sm">{errors.email}</p>}
               </div>
